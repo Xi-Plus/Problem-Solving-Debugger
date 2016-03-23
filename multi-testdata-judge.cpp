@@ -2,6 +2,8 @@
 #include<sstream>
 #include<fstream>
 #include<ctime>
+#include<map>
+#include<dirent.h>
 using namespace std;
 string readPath(){
 	string path;
@@ -36,10 +38,26 @@ bool cmpFile(string p1,string p2){
 		return true;
 	}
 }
-int main(){
-	string exe="",folder="",temp="temp.out";
+string exe="",folder="",temp="temp.out";
+void judge(string name){
+	cout<<"testdata "<<name<<"  ";
+	clock_t start_time,end_time;
 	stringstream ss;
-	int s,e;
+	ss<<"run.bat \""<<exe<<"\" \""<<folder<<name<<".in\" \""<<temp<<"\"";
+	start_time=clock();
+	system(ss.str().c_str());
+	end_time=clock();
+	ss.str("");
+	ss<<folder<<name<<".out";
+	if(cmpFile(temp,ss.str())) cout<<"AC";
+	else cout<<"WA";
+	cout<<"  "<<(end_time-start_time)*1000/CLOCKS_PER_SEC<<"ms ";
+	cout<<endl;
+}
+int main(){
+	stringstream ss;
+	string s;
+	int e;
 	while(true){
 		if(exe==""){
 			cout<<"exe path: ";
@@ -49,25 +67,49 @@ int main(){
 			cout<<"testdata folder path: ";
 			folder=readPath();
 			folder+="\\";
-			cout<<"First testdata index: ";
-			cin>>s;
-			cout<<"Last testdata index: ";
-			cin>>e; cin.ignore();
-		} 
-		for(int i=s;i<=e;i++){
-			cout<<"testdata "<<i<<"  ";
-			clock_t start_time,end_time;
-			ss.str("");
-			ss<<"run.bat \""<<exe<<"\" \""<<folder<<i<<".in\" \""<<temp<<"\"";
-			start_time=clock();
-			system(ss.str().c_str());
-			end_time=clock();
-			ss.str("");
-			ss<<folder<<i<<".out";
-			if(cmpFile(temp,ss.str())) cout<<"AC";
-			else cout<<"WA";
-			cout<<"  "<<(end_time-start_time)*1000/CLOCKS_PER_SEC<<"ms ";
-			cout<<endl;
+			s="";
+			while(s!="all"&&atoi(s.c_str())==0){
+				cout<<"First testdata index or Type \"all\": ";
+				cin>>s;
+				cin.ignore();
+			}
+			e=0;
+			while(s!="all"&&e==0){
+				cout<<"Last testdata index: ";
+				cin>>e;
+				cin.ignore();
+			}
+		}
+		if(s=="all"){
+			DIR *dir;
+		    struct dirent *dirp;
+		    if((dir = opendir(folder.c_str())) != NULL){
+		    	map<string,bool> in,out;
+		    	while((dirp = readdir(dir)) != NULL){
+		    		string name=dirp->d_name;
+		    		string ext=name.substr(name.find_last_of(".")+1);
+		    		string main=name.substr(0,name.find_last_of("."));
+		    		if(ext=="in"){
+		    			in[main]=true;
+					}else if(ext=="out"){
+						out[main]=true;
+					}
+			    }
+				closedir(dir);
+				for(auto i:in){
+					if(out[i.first]){
+						judge(i.first);
+					}else{
+						cout<<"Missing file: "<<i.first<<".out"<<endl;
+					}
+				}
+		    }else {
+		    	cout<<"Judge fail."<<endl;
+			}
+		}else{
+			for(int i=atoi(s.c_str());i<=e;i++){
+				judge(to_string(i));
+			}
 		}
 		ss.str("");
 		ss<<"del "<<temp;
