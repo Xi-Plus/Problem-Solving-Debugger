@@ -60,17 +60,17 @@ int main(){
 		for(int t=1;t<=times||times==0;t++){
 			cout<<"test "<<t;
 			ss.str("");
-			ss<<"run2.bat \""<<testdata<<"\" \"in.in\"";
+			ss<<"\"\""<<testdata<<"\" > \"in.in\"\"";
 			system(ss.str().c_str());
 			ss.str("");
-			ss<<"run3.bat \""<<exe1<<"\" \"in.in\" \"exe1.out\"";
+			ss<<"\"\""<<exe1<<"\" < \"in.in\" > \"exe1.out\"\"";
 			start_time=clock();
 			system(ss.str().c_str());
 			end_time=clock();
 			cout<<"  "<<(end_time-start_time)*1000/CLOCKS_PER_SEC<<"ms";
 			if(type=="cmp"){
 				ss.str("");
-				ss<<"run3.bat \""<<exe2<<"\" \"in.in\" \"exe2.out\"";
+				ss<<"\"\""<<exe2<<"\" < \"in.in\"> \"exe2.out\"\"";
 				start_time=clock();
 				system(ss.str().c_str());
 				end_time=clock();
@@ -86,7 +86,7 @@ int main(){
 				}
 			}else{
 				ss.str("");
-				ss<<"run1.bat \""<<exe2<<"\"";
+				ss<<"\""<<exe2<<"\"";
 				system(ss.str().c_str());
 				fstream exe2("exe2.out");
 				string s;

@@ -43,7 +43,7 @@ void judge(string name){
 	cout<<"testdata "<<name<<"  ";
 	clock_t start_time,end_time;
 	stringstream ss;
-	ss<<"run.bat \""<<exe<<"\" \""<<folder<<name<<".in\" \""<<temp<<"\"";
+	ss<<"\"\""<<exe<<"\" < \""<<folder<<name<<".in\" > \""<<temp<<"\"\"";
 	start_time=clock();
 	system(ss.str().c_str());
 	end_time=clock();
