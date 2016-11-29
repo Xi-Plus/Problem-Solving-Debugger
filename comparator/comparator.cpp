@@ -6,9 +6,11 @@ using namespace std;
 string readPath(){
 	string path;
 	getline(cin,path);
-	if(path[0]=='\"'){
-		path.erase(0,1);
-		path.erase(path.size()-1,1);
+	while(path.front()==' ')path.erase(path.begin());
+	while(path.back()==' ')path.erase(path.end()-1);
+	if(path.front()=='"'&&path.back()=='"'){
+		path.erase(path.begin());
+		path.erase(path.end()-1);
 	}
 	return path;
 }
