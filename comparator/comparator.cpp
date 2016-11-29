@@ -2,6 +2,7 @@
 #include<sstream>
 #include<fstream>
 #include<ctime>
+#include<conio.h>
 using namespace std;
 string readPath(){
 	string path;
@@ -38,28 +39,74 @@ bool cmpFile(string p1,string p2){
 		return true;
 	}
 }
-string exe1="",exe2="",testdata="",type="",temp="temp.out";
+string exe1="",exe2="",exesp="",testdata="",type="",temp="temp.out";
+int times=-1;
+int changepath(string *path){
+	string temp = readPath();
+	if(temp==""){
+		cout<<"No Change"<<endl;
+		return 0;
+	}
+	ifstream ifile(temp);
+	if(!ifile.good()){
+		cout<<"File Not Found"<<endl;
+		return -1;
+	}
+	*path = temp;
+	return 1;
+}
+int changeexe1(){
+	cout<<"[exe 1] input one executable path: ";
+	return changepath(&exe1);
+}
+int changeexe2(){
+	cout<<"[exe 2] input the other executable path: ";
+	return changepath(&exe2);
+}
+int changeexesp(){
+	cout<<"[exe sp] input special judge path: ";
+	return changepath(&exesp);
+}
+int changetestdata(){
+	cout<<"[testdata] input testdata generator path: ";
+	return changepath(&testdata);
+}
+void changetimes(){
+	while(times<0){
+		cout<<"[times] times of test (0 for forever): ";
+		cin>>times;
+	}
+}
+int changetype(){
+	cout<<"[type] \"cmp\" for compare 2 exe, \"sp\" for special judge: ";
+	string temp = readPath();
+	if(temp=="") {
+		return 0;
+	}
+	if(temp=="cmp"||temp=="sp") {
+		type = temp;
+		return 1;
+	}
+	return -1;
+}
 int main(){
 	stringstream ss;
 	string s;
 	clock_t start_time,end_time;
-	cout<<"your exe path: ";
-	exe1=readPath();
-	while(type!="cmp"&&type!="sp"){
-		cout<<"\"cmp\" for compare 2 exe, \"sp\" for special judge: ";
-		cin>>type;
-		cin.ignore();
-	}
-	if(type=="cmp") cout<<"correct exe path: ";
-	else cout<<"special judge path: ";
-	exe2=readPath();
-	cout<<"testdata path or command: ";
-	testdata=readPath();
-	int times;
-	cout<<"times of test (0 for forever): ";
-	cin>>times;
+	while(changeexe1()!=1);
+	while(changetype()!=1);
+	if(type=="cmp")
+		while(changeexe2()!=1);
+	else 
+		while(changeexesp()!=1);
+	while(changetestdata()!=1);
+	changetimes();
 	while(true){
 		for(int t=1;t<=times||times==0;t++){
+			if(kbhit()){
+				getch();
+				break;
+			}
 			cout<<"test "<<t;
 			ss.str("");
 			ss<<"\"\""<<testdata<<"\" > \"in.in\"\"";
@@ -69,18 +116,18 @@ int main(){
 			start_time=clock();
 			system(ss.str().c_str());
 			end_time=clock();
-			cout<<"  "<<(end_time-start_time)*1000/CLOCKS_PER_SEC<<"ms";
+			cout<<"\t"<<(end_time-start_time)*1000/CLOCKS_PER_SEC<<"ms";
 			if(type=="cmp"){
 				ss.str("");
 				ss<<"\"\""<<exe2<<"\" < \"in.in\"> \"exe2.out\"\"";
 				start_time=clock();
 				system(ss.str().c_str());
 				end_time=clock();
-				cout<<"  "<<(end_time-start_time)*1000/CLOCKS_PER_SEC<<"ms";
+				cout<<"\t"<<(end_time-start_time)*1000/CLOCKS_PER_SEC<<"ms";
 				if(cmpFile("exe1.out","exe2.out")){
-					cout<<"  AC"<<endl;
+					cout<<"\tAC"<<endl;
 				}else{
-					cout<<"  WA"<<endl;
+					cout<<"\tWA"<<endl;
 					system("start in.in");
 					system("start exe1.out");
 					system("start exe2.out");
@@ -94,15 +141,29 @@ int main(){
 				string s;
 				exe2>>s;
 				if(s=="AC"){
-					cout<<"  AC"<<endl;
+					cout<<"\tAC"<<endl;
 				}else{
-					cout<<"  WA"<<endl;
+					cout<<"\tWA"<<endl;
 					system("start in.in");
 					system("start exe1.out");
 					break;
 				}
 			}
 		}
-		system("pause");
+		cout<<endl;
+		cout<<"[exe1] "<<exe1<<endl;
+		if(type=="cmp") cout<<"[exe2] "<<exe2<<endl;
+		if(type=="sp") cout<<"[exesp] "<<exesp<<endl;
+		cout<<"[testdata] "<<testdata<<endl;
+		cout<<"[times] "<<times<<endl;
+		cout<<"Input exe1, exe2, exesp, testdata, times to change"<<endl;
+		cout<<"others to continue."<<endl;
+		string cmd="";
+		cmd=readPath();
+		if(cmd=="exe1")changeexe1();
+		else if(type=="cmp"&&cmd=="exe2")changeexe2();
+		else if(type=="sp"&&cmd=="exesp")changeexesp();
+		else if(cmd=="testdata")changetestdata();
+		else if(cmd=="times")changetimes();
 	}
 }
